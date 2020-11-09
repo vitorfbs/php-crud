@@ -36,9 +36,9 @@
                         Categorias
                     </a>
                     <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                    <a class="dropdown-item" href="categories/johnny.php">Johnny</a>
-                    <a class="dropdown-item" href="#">Jimmy</a>
-                    <a class="dropdown-item" href="#">Joan</a>
+                    <a class="dropdown-item" href="category.php?category=Johnny">Johnny</a>
+                    <a class="dropdown-item" href="category.php?category=Jimmy">Jimmy</a>
+                    <a class="dropdown-item" href="category.php?category=Joan">Joan</a>
                     </div>
                 </li>
                 <li class="nav-item">
