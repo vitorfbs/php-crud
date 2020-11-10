@@ -1,38 +1,21 @@
 <?php
-// Process delete operation after confirmation
 if(isset($_POST["id"]) && !empty($_POST["id"])){
-    // Include config file
     require_once "../server/config.php";
-    
-    // Prepare a delete statement
     $sql = "DELETE FROM posts WHERE id = ?";
-    
     if($stmt = mysqli_prepare($link, $sql)){
-        // Bind variables to the prepared statement as parameters
         mysqli_stmt_bind_param($stmt, "i", $param_id);
-        
-        // Set parameters
         $param_id = trim($_POST["id"]);
-        
-        // Attempt to execute the prepared statement
         if(mysqli_stmt_execute($stmt)){
-            // Records deleted successfully. Redirect to landing page
-            header("location: index.php");
+            header("location: dashboard.php");
             exit();
         } else{
-            echo "Oops! Something went wrong. Please try again later.";
+            echo "Erro no servidor.";
         }
     }
-     
-    // Close statement
     mysqli_stmt_close($stmt);
-    
-    // Close connection
     mysqli_close($link);
 } else{
-    // Check existence of id parameter
     if(empty(trim($_GET["id"]))){
-        // URL doesn't contain id parameter. Redirect to error page
         header("location: error.php");
         exit();
     }
@@ -43,35 +26,61 @@ if(isset($_POST["id"]) && !empty($_POST["id"])){
 <head>
     <meta charset="UTF-8">
     <title>View Record</title>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+
     <style type="text/css">
         .wrapper{
             width: 500px;
             margin: 0 auto;
         }
+        .footer {
+        position: absolute;
+        bottom: 0;
+        width: 100%;
+        height: 60px;
+        line-height: 60px;
+        background-color: #f5f5f5;
+        }
     </style>
 </head>
 <body>
-    <div class="wrapper">
         <div class="container-fluid">
             <div class="row">
                 <div class="col-md-12">
                     <div class="page-header">
-                        <h1>Delete Record</h1>
+                        <h1>Deletar o Artigo</h1>
                     </div>
                     <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post">
-                        <div class="alert alert-danger fade in">
+                        <div class="row">
+                            <div class="col-md-10">
                             <input type="hidden" name="id" value="<?php echo trim($_GET["id"]); ?>"/>
-                            <p>Are you sure you want to delete this record?</p><br>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-10">
+                            <p>Deletar o Artigo?</p><br>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-10">
                             <p>
-                                <input type="submit" value="Yes" class="btn btn-danger">
-                                <a href="dashboard.php" class="btn btn-default">No</a>
+                                <input type="submit" value="Sim" class="btn btn-danger">
+                                <a href="dashboard.php" class="btn btn-secondary">Não</a>
                             </p>
+                            </div>
+                        </div>
                         </div>
                     </form>
                 </div>
-            </div>        
+            </div>
         </div>
-    </div>
+        <footer class="footer position-fixed">
+            <div class="container">
+                <span class="text-muted">FIAP 2020 - Equipe Heraclitus</span>
+            </div>
+        </footer>
 </body>
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
 </html>

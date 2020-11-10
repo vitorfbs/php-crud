@@ -1,86 +1,94 @@
-<?php
-// Check existence of id parameter before processing further
-if(isset($_GET["id"]) && !empty(trim($_GET["id"]))){
-    // Include config file
-    require_once "server/config.php";
-    
-    // Prepare a select statement
-    $sql = "SELECT * FROM posts WHERE id = ?";
-    
-    if($stmt = mysqli_prepare($link, $sql)){
-        // Bind variables to the prepared statement as parameters
-        mysqli_stmt_bind_param($stmt, "i", $param_id);
-        
-        // Set parameters
-        $param_id = trim($_GET["id"]);
-        
-        // Attempt to execute the prepared statement
-        if(mysqli_stmt_execute($stmt)){
-            $result = mysqli_stmt_get_result($stmt);
-    
-            if(mysqli_num_rows($result) == 1){
-                /* Fetch result row as an associative array. Since the result set
-                contains only one row, we don't need to use while loop */
-                $row = mysqli_fetch_array($result, MYSQLI_ASSOC);
-                
-                // Retrieve individual field value
-                $title = $row["title"];
-                $text = $row["text"];
-                $category = $row["category"];
-            } else{
-                // URL doesn't contain valid id parameter. Redirect to error page
-                header("location: error.php");
-                exit();
-            }
-            
-        } else{
-            echo "Oops! Something went wrong. Please try again later.";
-        }
-    }
-     
-    // Close statement
-    mysqli_stmt_close($stmt);
-    
-    // Close connection
-    mysqli_close($link);
-} else{
-    // URL doesn't contain id parameter. Redirect to error page
-    header("location: error.php");
-    exit();
-}
-?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>View Record</title>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.css">
-    <style type="text/css">
-        .wrapper{
-            width: 500px;
-            margin: 0 auto;
+    <title>Dashboard</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+
+    <style>
+        .footer {
+        position: absolute;
+        bottom: 0;
+        width: 100%;
+        height: 60px;
+        line-height: 60px;
+        background-color: #f5f5f5;
         }
     </style>
 </head>
 <body>
-        <div class="container-fluid">
-            <div class="row">
-                <div class="col-md-12">
-                    <div class="page-header">
-                        <h1><?php echo $row["date"] . " - " . $row["title"]; ?></h1>
+    <div class="container-fluid">
+        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+            <a class="navbar-brand" href="index.php"><img src="assets/owl.png" alt=""></a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav mr-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="index.php">Início</a>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        Categorias
+                    </a>
+                    <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                    <a class="dropdown-item" href="category.php?category=Johnny">Johnny</a>
+                    <a class="dropdown-item" href="category.php?category=Jimmy">Jimmy</a>
+                    <a class="dropdown-item" href="category.php?category=Joan">Joan</a>
                     </div>
-                    <div class="form-group">
-                        <p class="form-control-static"></p>
-                    </div>
-                    <div class="form-group">
-                        <p class="form-control-static"><?php echo $row["text"]; ?></p>
-                    </div>
-                    <div class="form-group">
-                        <p class="form-control-static"><?php echo $row["category"]; ?></p>
-                    </div>
-                    <p><a href="index.php" class="btn btn-primary">Voltar para o Início</a></p>
-                </div>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="admin/dashboard.php">Dashboard</a>
+                </li>
+                </ul>
+                <form action="search.php" class="form-inline my-2 my-lg-0">
+                    <input name="text" class="form-control mr-sm-2" type="search" placeholder="Escreva aqui" aria-label="Search">
+                    <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Buscar</button>
+                </form>
             </div>
-        </div>
+        </nav>
+        <section class="row">
+            <div class='col-md-12'>
+            <?php
+                require_once "server/config.php";
+                $sql = "SELECT * FROM posts WHERE id = '". $_GET["id"] ."'";
+
+                if($result = mysqli_query($link, $sql)){
+                    if(mysqli_num_rows($result) > 0){
+                        while($row = mysqli_fetch_array($result)){
+                            echo "<div class='row'>";
+                            echo "<div class='col-md-4'>";
+                            echo "<img src='". $row['image'] . "' class='img-fluid' alt='Imagem do post'>";
+                            echo "</div>";
+                            echo "<div class='col-md-6'>";
+                            echo "<h2>" . date("d/m/Y", strtotime($row['date'])) . " - " . $row['title'] . "</h2>";
+                            echo "<p>Categoria: " . $row['category'] . "</p>";
+                            echo "<p>" . $row['text'] . "</p>";
+                            echo "<a href='index.php' title='Voltar' data-toggle='tooltip'>VOLTAR</a>";
+                            echo "</div>";
+                            echo "</div>";
+                        }
+                        mysqli_free_result($result);
+                    } else{
+                        echo "<p class='lead'><em>Nenhum artigo encontrado.</em></p>";
+                    }
+                } else{
+                    echo "[ERROR]: $sql. " . mysqli_error($link);
+                }
+                mysqli_close($link);
+            ?>
+            </div>
+        </section>
+        <footer class="footer position-fixed">
+            <div class="container">
+                <span class="text-muted">FIAP 2020 - Equipe Heraclitus</span>
+            </div>
+        </footer>
+    </div>
 </body>
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
 </html>
